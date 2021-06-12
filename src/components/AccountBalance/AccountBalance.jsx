@@ -11,11 +11,23 @@ const Section = styled.section`
 
 
 export default class AccountBalance extends Component {
+    
+    handleClick = (event) => {
+        //Prevent the default action of submitting the form
+        event.preventDefault();
+        this.props.handleShowBalance(!this.props.showBalance);
+    }
     render() {
+        const buttonText = this.props.showBalance ? 'Hide Balance' : 'Show Balance';
+        let content = null;
+        if (this.props.showBalance){
+            content = <>Balance: ${this.props.amount}</>
+        }
+
         return (
-            
             <Section>
-            Account Balance: ${this.props.amount}
+            {content}
+            <button onClick={this.handleClick}> {buttonText}</button>
             </Section>
             
         )
