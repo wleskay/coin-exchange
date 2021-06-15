@@ -10,12 +10,19 @@ const Td = styled.td `
 
 export default function Coin(props) {
     
-  const handleClick = (event) =>{
+  const handleClickBuy = (event) =>{
         //Prevent the default action of submitting the form
         event.preventDefault();
 
-        props.handleRefresh(props.id);
+        props.handleCoinBalance(props.id,true);
   }
+
+  const handleClickSell = (event) =>{
+    //Prevent the default action of submitting the form
+    event.preventDefault();
+
+    props.handleCoinBalance(props.id,false);
+}
     
   return(
       <tr>
@@ -25,7 +32,8 @@ export default function Coin(props) {
         {props.showBalance ? <Td>{props.balance}</Td> : <Td>***</Td> }
         <Td>
           <form action = "#" method = "POST">
-            <button onClick={handleClick}>Refresh</button>
+            <button onClick={handleClickBuy}>Buy</button>
+            <button onClick={handleClickSell}>Sell</button>
           </form>
         </Td>
       </tr>

@@ -11,7 +11,7 @@ const Div = styled.div`
   color: #cccccc;
 `;
 
-const COIN_COUNT = 10;
+const COIN_COUNT = 5;
 function App(props){
   const [balance, setBalance] = React.useState(10000);
   const [showBalance, setShowBalance] = React.useState(true);
@@ -49,8 +49,32 @@ function App(props){
   });
 
 
-  const handleRefresh = async (valueChangeKey) => {
-    const coin = await axios.get('https://api.coinpaprika.com/v1/tickers/' + valueChangeKey);
+  const handleRefresh = async () => {
+    const response = await axios.get('https://api.coinpaprika.com/v1/coins')
+    const coinIds = response.data.slice(0,COIN_COUNT).map( coin => coin.id);
+    const tickerUrl = 'https://api.coinpaprika.com/v1/tickers/';
+    const promises = coinIds.map(id => axios.get(tickerUrl + id));
+    const newcoinData = await Promise.all(promises);
+    let i = 0;
+    //console.log(newcoinData)
+    const updateCoinData = newcoinData.map(function(response){
+      const coin = response.data;
+      const index = i;
+      i++;
+      return{
+        key: coin.id,
+        name: coin.name,
+        ticker: coin.symbol,
+        balance: coinData[index].balance,
+        price: parseFloat(coin.quotes.USD.price.toFixed(4))
+      };
+    });
+
+    //retreive prices
+    setCoinData(updateCoinData);
+
+
+    /*const coin = await axios.get('https://api.coinpaprika.com/v1/tickers/' + valueChangeKey);
     const newCoinData= coinData.map(function(values){
       let newValues = {...values};
       if ( valueChangeKey === values.key) {
@@ -61,20 +85,55 @@ function App(props){
     
 
     });
-    setCoinData(newCoinData);
+    setCoinData(newCoinData);*/
   };
 
   const handleShowBalance = (newBalanceVisibility) => {
     setShowBalance(newBalanceVisibility);
   };
+
+  const handleIncreaseBalance = () => {
+    const newBalance = balance + 1200
+    setBalance(newBalance);
+  };
+
+  const handleCoinBalance = async (valueChangeKey,buyOrSell) => {
+    
+    let newBalance = balance;
+    const newCoinData= coinData.map(function(values){
+      let newValues = {...values};
+      if ( valueChangeKey === values.key) {
+        if(buyOrSell){
+        newValues.balance = newValues.balance + 1000;
+        newBalance = newBalance - 1000;
+        console.log(newValues.price);
+        console.log(newValues.balance);
+        }
+        else{
+        newValues.balance = newValues.balance - 1000;
+        newBalance = newBalance + 1000;
+        console.log(newValues.price);
+        console.log(newValues.balance);
+        }
+        }
+      return newValues;
+    });
+    setCoinData(newCoinData);
+    setBalance(newBalance);
+  };
+
   return (
   <Div className="App">
     <ExchangeHeader/>
-    <AccountBalance amount = {balance} showBalance={showBalance} handleShowBalance={handleShowBalance} />
+    <AccountBalance amount = {balance} 
+    showBalance={showBalance} 
+    handleShowBalance={handleShowBalance} 
+    handleIncreaseBalance={handleIncreaseBalance}/>
     <CoinList 
     coinData = {coinData} 
     showBalance = {showBalance}
-    handleRefresh={handleRefresh}/>
+    handleRefresh={handleRefresh}
+    handleCoinBalance={handleCoinBalance}/>
   </Div>
   );
 };

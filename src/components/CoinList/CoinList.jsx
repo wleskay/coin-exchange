@@ -9,14 +9,24 @@ const Table = styled.table`
 `;
 
 export default function CoinList(props) {
+
+  const handleClick = (event) =>{
+    //Prevent the default action of submitting the form
+    event.preventDefault();
+
+    props.handleRefresh();
+  }
+
   return (
     <Table className="coin-table">
     <thead>
       <tr>
         <th>NAME</th>
         <th>TICKER</th>
-        <th>PRICE</th>
-        {props.showBalance ? <th>BALANCE</th> : <th>***</th>}
+        <th>PRICE 
+            <button onClick={handleClick}> Refresh </button>
+        </th>
+        <th>BALANCE</th> 
         <th>ACTION</th>
       </tr> 
     </thead>
@@ -26,12 +36,13 @@ export default function CoinList(props) {
       <Coin 
             key= {key} 
             id={key}
-            handleRefresh = {props.handleRefresh}
             name = {name} 
             ticker = {ticker} 
-            showBalance = {props.showBalance}
             price={price}
-            balance = {balance}/>
+            balance = {balance}
+            showBalance = {props.showBalance}
+            handleRefresh = {props.handleRefresh}
+            handleCoinBalance = {props.handleCoinBalance}/>
       )
     }
     </tbody>
